@@ -304,23 +304,20 @@ function checkOut(room) {
     let availRoomsList = document.getElementById("availableroomslist");
     let bookedRoomsList = document.getElementById("bookedroomslist");
     let rooms = bookedRoomsList.getElementsByTagName("li")
-
+    
     if (typeof room === "undefined") {
-
-        for (let i = 0; i <= rooms.length; i++) {
+        let max = rooms.length;
+        for (let i = 0; i < max; i++) {
             rooms[0].style.display = "none";
             availRoomsList.appendChild(rooms[0]);
         }
         for (let i = 0; i < javaScriptHotel.bookedRooms.length; i++) {
             for (let j = 0; j < javaScriptHotel.bookedRooms[i].length; j++) {
                 if (javaScriptHotel.bookedRooms[i][j] !== '' && javaScriptHotel.bookedRooms[i][j] !== undefined) {
-                    javaScriptHotel.bookedRooms[i][j].cost = "";
                     javaScriptHotel.availableRoomNumbers[i].unshift(javaScriptHotel.bookedRooms[i][j].bookedRoom);
                     message +=
                         `\n ${javaScriptHotel.bookedRooms[i][j].name}, you stayed for ${javaScriptHotel.bookedRooms[i][j].bookedDays} days \n`;
-                    javaScriptHotel.bookedRooms[i][j].bookedRoom = "";
-                    customers.unshift(javaScriptHotel.bookedRooms[i][j]);
-                    javaScriptHotel.bookedRooms[i][j] = "";
+                    javaScriptHotel.bookedRooms[i].splice(j, 1);
                 }
             }
         }
