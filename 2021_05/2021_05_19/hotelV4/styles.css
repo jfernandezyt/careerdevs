@@ -1,0 +1,40 @@
+#availableroomslist {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+#bookedroomslist {
+    /* list-style-type: none; */
+    padding: 0;
+    margin: 0;
+  }
+#availableroomslist li  {
+    border: 1px solid #ddd;
+    margin-top: -1px; /* Prevent double borders */
+    background-color: #f6f6f6;
+    padding: 12px;
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+    width: 5%;
+    /* display: block */
+  }
+#bookedroomslist li  {
+    border: 1px solid #ddd;
+    margin-top: -1px; /* Prevent double borders */
+    background-color: #f6f6f6;
+    padding: 12px;
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+    width: 5%;
+    /* display: block */
+  }
+  
+#availableroomslist li {
+    background-color: #eee;
+  }
+#bookedroomslist li {
+    background-color: #eee;
+  }
