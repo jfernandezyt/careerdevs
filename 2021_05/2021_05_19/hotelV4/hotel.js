@@ -1,9 +1,28 @@
-const javaScriptHotel = {
-    roomTypes: ["Single", "Double", "Suite"],
-    availableRoomNumbers: [[1000, 1001, 1002, 1003], [2000, 2001], [3000]],
-    bookedRooms: [[], [], []],
-    costOfRooms: [100, 200, 500]
+function createHotel(floors, rooms) {
+    let hotel = {
+        availableRoomNumbers: [],
+        bookedRooms: [],
+        costOfRooms: []
+    };
+
+    for (let i = 0; i < floors; i++) {
+        hotel.availableRoomNumbers.push([]);
+        hotel.bookedRooms.push([]);
+        hotel.costOfRooms[i] = [(i + 1) * 100];
+        for (let j = 0; j < rooms; j++) {
+            hotel.availableRoomNumbers[i].push((i + 1) * 1000 + j);
+        }
+    }
+    //console.log(hotel);
+    return hotel;
+
 }
+
+const floors = 6;
+const rooms = 10;
+const hotel = createHotel(floors, rooms);
+console.log(hotel)
+
 /* Version 1
 Create an index.html and hotel.js file.  Connect the files via a script tag.
 
@@ -38,6 +57,7 @@ Begin completing Free Code Camp Algorithms (turn in two new algos by monday)
 function loadElements() {
     let searchBar, bookedTitle, availTitle, wallet;
     const mainDiv = document.createElement("div");
+
     mainDiv.id = "maindiv";
     bookedTitle = document.createElement("h2");
     bookedTitle.id = "bookroomstitle";
@@ -71,26 +91,30 @@ function loadElements() {
     mainDiv.appendChild(revenue[0]);
     mainDiv.appendChild(revenue[1]);
 
+
     checkoutRoom = document.getElementById("checkoutnumber");
-    checkoutRoom.setAttribute("onclick", "checkOutNumber()");
     typeBtn = document.getElementById("bookbytype");
-    typeBtn.setAttribute("onclick", "bookByRoomType()");
     roomBtn = document.getElementById("bookbynumber");
-    roomBtn.setAttribute("onclick", "bookByRoomNumber()");
-    floorbtn = document.getElementById("bookbyfloor")
-    floorbtn.setAttribute("onclick", "bookRoomByFloor()");
+    floorbtn = document.getElementById("bookbyfloor");
     searchBar = document.getElementById("searchbar");
     walletBtn = document.getElementById("walletbutton");
     checkoutroomsBtn = document.getElementById("checkoutrooms");
+
+    checkoutRoom.setAttribute("onclick", "checkOutNumber()");
+    typeBtn.setAttribute("onclick", "bookByRoomType()");
+    roomBtn.setAttribute("onclick", "bookByRoomNumber()");
+    floorbtn.setAttribute("onclick", "bookRoomByFloor()");
     searchBar.setAttribute("onkeyup", "search()");
     searchBar.focus();
     walletBtn.setAttribute("onclick", "addFunds()");
     checkoutroomsBtn.setAttribute("onclick", "checkOut()");
+
 }
 
 function createSearch() {
-    let searchBar = document.createElement("input");
+    let searchBar;
 
+    searchBar = document.createElement("input");
     searchBar.id = "searchbar";
     searchBar.type = "text";
     searchBar.placeholder = "Search for room to book...";
@@ -120,21 +144,17 @@ function search() {
 }
 
 function createAvailableList() {
-    let availableRoomsList = document.createElement("ul");
+    let availableRoomsList, roomTypes, tempElement;
+    availableRoomsList = document.createElement("ul");
     availableRoomsList.id = "availableroomslist";
 
+    for (let i = 0; i < hotel.availableRoomNumbers.length; i++) {
+        for (let j = 0; j < hotel.availableRoomNumbers[i].length; j++) {
 
-    for (let i = 0; i < javaScriptHotel.availableRoomNumbers.length; i++) {
-        let roomTypes = document.createElement("li");
-        roomTypes.id = javaScriptHotel.roomTypes[i];
-        roomTypes.innerText = javaScriptHotel.roomTypes[i];
-        roomTypes.style.display = "none";
-        availableRoomsList.appendChild(roomTypes);
-        roomTypes.setAttribute("onclick", "bookRoom(this)");
-        for (let j = 0; j < javaScriptHotel.availableRoomNumbers[i].length; j++) {
-            let tempElement = document.createElement("li");
-            tempElement.id = javaScriptHotel.availableRoomNumbers[i][j];
-            tempElement.innerText = javaScriptHotel.availableRoomNumbers[i][j];
+            tempElement = document.createElement("li");
+            tempElement.id = hotel.availableRoomNumbers[i][j];
+            tempElement.innerText = hotel.availableRoomNumbers[i][j];
+            tempElement.value = hotel.availableRoomNumbers[i][j];
             tempElement.style.display = "none";
             availableRoomsList.appendChild(tempElement);
             tempElement.setAttribute("onclick", "bookRoom(this)");
@@ -145,14 +165,16 @@ function createAvailableList() {
 }
 
 function createBookedList() {
-    let bookedRoomsList = document.createElement("ul");
+    let bookedRoomsList;
+    bookedRoomsList = document.createElement("ul");
     bookedRoomsList.id = "bookedroomslist";
 
     return bookedRoomsList;
 }
 
 function createCheckOutAllRooms() {
-    let btn = document.createElement("button");
+    let btn;
+    btn = document.createElement("button");
 
     btn.id = "checkoutrooms"
     btn.innerText = "Check all Guests out.";
@@ -160,28 +182,22 @@ function createCheckOutAllRooms() {
 }
 
 function bookRoom(room) {
-    let isEmpty, cost, wallet, index, customer, revenue, daysToBook, customerName, roomType;
+    let isEmpty, cost, wallet, index, customer, revenue, daysToBook, customerName, roomType, bookedRoomsList, availableList, availRooms, isFloor;
 
-    if (parseInt(room)) {
-        roomType = parseInt(room);
-    } else if (room.innerText) {
-        roomType = room.innerText;
-        //console.log("test1")
-        if (parseInt(roomType)) {
-            //console.log("test2")
-            roomType = parseInt(roomType);
-        }
-    } else {
-        roomType = room;
+    isFloor = typeOfBooking(room);
+
+    if (isFloor !== true) {
+        roomType = isFloor
     }
-    //console.log(typeof roomType);
-    let bookedRoomsList = document.getElementById("bookedroomslist");
-    let availableList = document.getElementById("availableroomslist");
-    let availRooms = availableList.getElementsByTagName("li");
+
+    bookedRoomsList = document.getElementById("bookedroomslist");
+    availableList = document.getElementById("availableroomslist");
+    availRooms = availableList.getElementsByTagName("li");
+
     customerName = prompt("What is your name ?");
     daysToBook = prompt("How many days are you booking the room for ?");
-
     daysToBook = parseInt(daysToBook);
+
     customer = {
         name: customerName,
         bookedDays: daysToBook
@@ -194,15 +210,27 @@ function bookRoom(room) {
     revenue = parseInt(revenueDiv.innerText);
 
     if (typeof roomType === "string") {
-        index = (roomType === "Single") ? 0 : (roomType === "Double") ? 1 : 2;
-        if (javaScriptHotel.availableRoomNumbers[index].length !== 0) {
-            cost = (customer.bookedDays * javaScriptHotel.costOfRooms[index]);
+        if (roomType === "Single") {
+            index = 0;
+        } else if (roomType === "Double") {
+            index = 1;
+        } else if (roomType === "Suite") {
+            index = 2;
+        }
+
+        if (hotel.availableRoomNumbers[index].length !== 0) {
+            cost = (customer.bookedDays * hotel.costOfRooms[index]);
             if (cost > currentFunds) {
+
                 alert(`You do not have enough funds in your wallet to book this room. 
 The cost would be ${cost}, you curently have ${currentFunds} in your wallet`);
+
             } else {
                 for (let i = 0; i < availRooms.length; i++) {
-                    if (availRooms[i].innerText == javaScriptHotel.availableRoomNumbers[index][0]) {
+                    if (availRooms[i].innerText == hotel.availableRoomNumbers[index][i]) {
+                        customer.bookedRoom = hotel.availableRoomNumbers[index].splice(i, 1)[0];
+                        customer.cost = cost;
+                        hotel.bookedRooms[index][i] = customer;
                         availRooms[i].style.display = "block";
                         availRooms[i].removeAttribute("onclick");
                         availRooms[i].setAttribute("onclick", "checkOut(this)");
@@ -210,16 +238,16 @@ The cost would be ${cost}, you curently have ${currentFunds} in your wallet`);
                         break;
                     }
                 }
-                customer.bookedRoom = javaScriptHotel.availableRoomNumbers[index].shift();
                 customer.cost = cost;
+                hotel.bookedRooms[index].push(customer);
                 revenue += cost;
                 revenueDiv.innerText = String(revenue);
-                javaScriptHotel.bookedRooms[index].push(customer);
                 isEmpty = false;
                 currentFunds -= cost;
                 wallet.innerText = currentFunds;
+
                 alert(`You booked the room for ${customer.bookedDays} days. 
-The cost per day for this room is ${javaScriptHotel.costOfRooms[index]} 
+The cost per day for this room is ${hotel.costOfRooms[index]} 
 costing you a total of: ${cost}
                 
 Name: ${customer.name}`);
@@ -237,19 +265,19 @@ Name: ${customer.name}`);
         }
 
     } else if (typeof roomType === "number") {
-        for (let i = 0; i < javaScriptHotel.availableRoomNumbers.length; i++) {
-            for (let j = 0; j < javaScriptHotel.availableRoomNumbers[i].length; j++) {
-                if (javaScriptHotel.availableRoomNumbers[i][j] === roomType) {
-                    cost = (customer.bookedDays * javaScriptHotel.costOfRooms[i]);
+        for (let i = 0; i < hotel.availableRoomNumbers.length; i++) {
+            for (let j = 0; j < hotel.availableRoomNumbers[i].length; j++) {
+                if (hotel.availableRoomNumbers[i][j] === roomType) {
+                    cost = (customer.bookedDays * hotel.costOfRooms[i]);
                     if (cost > currentFunds) {
                         alert(`You do not have enough funds in your wallet to book this room. 
 The cost would be ${cost}, you curently have ${currentFunds} in your wallet`);
                     } else {
-                        customer.bookedRoom = javaScriptHotel.availableRoomNumbers[i].splice(j, 1);
+                        customer.bookedRoom = hotel.availableRoomNumbers[i].splice(j, 1)[0];
                         customer.cost = cost;
                         revenue += cost;
                         revenueDiv.innerText = String(revenue);
-                        javaScriptHotel.bookedRooms[i][j] = customer;
+                        hotel.bookedRooms[i][j] = customer;
                         room.style = "block";
                         room.removeAttribute("onclick");
                         room.setAttribute("onclick", "checkOut(this)");
@@ -257,18 +285,57 @@ The cost would be ${cost}, you curently have ${currentFunds} in your wallet`);
                         currentFunds -= cost;
                         wallet.innerText = currentFunds;
                         alert(`You booked the room for ${customer.bookedDays} days,
-the cost per day for this room is ${javaScriptHotel.costOfRooms[i]}
+the cost per day for this room is ${hotel.costOfRooms[i]}
 costing you a total of: ${cost}
 
 Name: ${customer.name}`);
                         return;
                     }
                 } else {
-                    if (javaScriptHotel.bookedRooms[i][j] === undefined) {
-                        javaScriptHotel.bookedRooms[i][j] = '';
+                    if (hotel.bookedRooms[i][j] === undefined) {
+                        hotel.bookedRooms[i][j] = '';
                     }
                 }
             }
+        }
+    } else if (isFloor === true) {
+        index = parseInt(room) - 1;
+
+        if (hotel.availableRoomNumbers[index].length !== 0) {
+            cost = (customer.bookedDays * hotel.costOfRooms[index]);
+            if (cost > currentFunds) {
+
+                alert(`You do not have enough funds in your wallet to book this room. 
+The cost would be ${cost}, you curently have ${currentFunds} in your wallet`);
+
+            } else {
+                for (let i = 0; i < availRooms.length; i++) {
+                    if (availRooms[i].innerText == hotel.availableRoomNumbers[index][0]) {
+                        console.log('heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy')
+                        customer.bookedRoom = hotel.availableRoomNumbers[index].splice(0, 1)[0];
+                        customer.cost = cost;
+                        hotel.bookedRooms[index].push(customer);
+                        availRooms[i].style.display = "block";
+                        availRooms[i].removeAttribute("onclick");
+                        availRooms[i].setAttribute("onclick", "checkOut(this)");
+                        bookedRoomsList.appendChild(availRooms[i]);
+                        break;
+                    }
+                }              
+                revenue += cost;
+                revenueDiv.innerText = String(revenue);
+                isEmpty = false;
+                currentFunds -= cost;
+                wallet.innerText = currentFunds;
+
+                alert(`You booked the room for ${customer.bookedDays} days. 
+The cost per day for this room is ${hotel.costOfRooms[index]} 
+costing you a total of: ${cost}
+                
+Name: ${customer.name}`);
+            }
+
+
         }
     }
 
@@ -276,9 +343,11 @@ Name: ${customer.name}`);
 }
 
 function createWallet() {
-    let walletLabel = document.createElement("div");
-    let walletBtn = document.createElement("button");
-    let walletTitle = document.createElement("h2");
+    let walletLabel, walletBtn, walletTitle;
+
+    walletLabel = document.createElement("div");
+    walletBtn = document.createElement("button");
+    walletTitle = document.createElement("h2");
 
     walletLabel.id = "walletlabel";
     walletBtn.id = "walletbutton";
@@ -291,8 +360,10 @@ function createWallet() {
 }
 
 function addFunds() {
-    let label = document.getElementById("walletlabel");
-    let currentAmount = parseInt(label.innerText);
+    let label, currentAmount;
+
+    label = document.getElementById("walletlabel");
+    currentAmount = parseInt(label.innerText);
 
     currentAmount += 100;
     label.innerText = String(currentAmount);
@@ -300,24 +371,26 @@ function addFunds() {
 
 
 function checkOut(room) {
-    let message = "Thank you for booking with us:";
-    let availRoomsList = document.getElementById("availableroomslist");
-    let bookedRoomsList = document.getElementById("bookedroomslist");
-    let rooms = bookedRoomsList.getElementsByTagName("li")
-    
+    let message, availRoomsList, bookedRoomsList, rooms;
+
+    message = "Thank you for booking with us:";
+    availRoomsList = document.getElementById("availableroomslist");
+    bookedRoomsList = document.getElementById("bookedroomslist");
+    rooms = bookedRoomsList.getElementsByTagName("li")
+
     if (typeof room === "undefined") {
         let max = rooms.length;
         for (let i = 0; i < max; i++) {
             rooms[0].style.display = "none";
             availRoomsList.appendChild(rooms[0]);
         }
-        for (let i = 0; i < javaScriptHotel.bookedRooms.length; i++) {
-            for (let j = 0; j < javaScriptHotel.bookedRooms[i].length; j++) {
-                if (javaScriptHotel.bookedRooms[i][j] !== '' && javaScriptHotel.bookedRooms[i][j] !== undefined) {
-                    javaScriptHotel.availableRoomNumbers[i].unshift(javaScriptHotel.bookedRooms[i][j].bookedRoom);
+        for (let i = 0; i < hotel.bookedRooms.length; i++) {
+            for (let j = 0; j < hotel.bookedRooms[i].length; j++) {
+                if (hotel.bookedRooms[i][j] !== '' && hotel.bookedRooms[i][j] !== undefined) {
+                    hotel.availableRoomNumbers[i][j] = hotel.bookedRooms[i][j].bookedRoom;
                     message +=
-                        `\n ${javaScriptHotel.bookedRooms[i][j].name}, you stayed for ${javaScriptHotel.bookedRooms[i][j].bookedDays} days \n`;
-                    javaScriptHotel.bookedRooms[i].splice(j, 1);
+                        `\n ${hotel.bookedRooms[i][j].name}, you stayed for ${hotel.bookedRooms[i][j].bookedDays} days \n`;
+                    hotel.bookedRooms[i][j] = "";
                 }
             }
         }
@@ -326,17 +399,16 @@ function checkOut(room) {
         alert(message);
     } else {
         if (room) {
-            console.log(room);
-            for (let i = 0; i < javaScriptHotel.bookedRooms.length; i++) {
-                for (let j = 0; j < javaScriptHotel.bookedRooms[i].length; j++) {
-                    if (typeof javaScriptHotel.bookedRooms[i][j].bookedRoom !== undefined) {
-                        if (javaScriptHotel.bookedRooms[i][j].bookedRoom == room.innerText) {
+            for (let i = 0; i < hotel.bookedRooms.length; i++) {
+                for (let j = 0; j < hotel.bookedRooms[i].length; j++) {
+                    if (typeof hotel.bookedRooms[i][j].bookedRoom !== undefined) {
+                        if (hotel.bookedRooms[i][j].bookedRoom == room.innerText) {
                             room.style.display = "none";
                             availRoomsList.appendChild(room);
-                            alert(`Thank you for booking a room with us ${javaScriptHotel.bookedRooms[i][j].name}
-You are now checked out. You were charged ${javaScriptHotel.bookedRooms[i][j].cost} for your stay.`);
-                            javaScriptHotel.availableRoomNumbers[i].unshift(javaScriptHotel.bookedRooms[i][j].bookedRoom);
-                            javaScriptHotel.bookedRooms[i].splice(j, 1);
+                            alert(`Thank you for booking a room with us ${hotel.bookedRooms[i][j].name}
+You are now checked out. You were charged ${hotel.bookedRooms[i][j].cost} for your stay.`);
+                            hotel.availableRoomNumbers[i].splice(j, 0, hotel.bookedRooms[i][j].bookedRoom);
+                            hotel.bookedRooms[i].splice(j, 1);
                             return;
                         }
                     }
@@ -351,6 +423,7 @@ You are now checked out. You were charged ${javaScriptHotel.bookedRooms[i][j].co
 
 function createRevenue() {
     let label, tracker;
+
     tracker = document.createElement("div");
     tracker.id = "revenuetracker";
     tracker.innerText = "0";
@@ -361,14 +434,16 @@ function createRevenue() {
 }
 
 function createFloorBookingBtn() {
-    let btn = document.createElement("button");
+    let btn;
+    btn = document.createElement("button");
     btn.id = "bookbyfloor";
     btn.innerText = "Book by floor number";
 
     return btn;
 }
 function createBookByRoom() {
-    let btn = document.createElement("button");
+    let btn;
+    btn = document.createElement("button");
     btn.id = "bookbynumber";
     btn.innerText = "Book by room number";
 
@@ -376,36 +451,24 @@ function createBookByRoom() {
 }
 
 function bookRoomByFloor() {
-    let isFloor, floorNumber;
-    while (isFloor !== true) {
-        floorNumber = prompt(`What floor would you like to book a room on ? 
-    \n\n(1-3 are the options)`);
+    let floorNumber;
 
-        if (floorNumber == 1) {
-            floorNumber = "Single";
-            isFloor = true;
-        } else if (floorNumber == 2) {
-            floorNumber = "Double";
-            isFloor = true;
-        } else if (floorNumber == 3) {
-            floorNumber = "Suite";
-            isFloor = true;
-        } else {
-            isFloor = false;
-        }
-    }
+    floorNumber = prompt(`What floor would you like to book a room on ? 
+    \n\n(1-${hotel.availableRoomNumbers.length} are the options)`);
+
     bookRoom(floorNumber);
 }
 
 function bookByRoomNumber() {
     let isRoomFlag, roomNumber;
+
     while (isRoomFlag !== true) {
         roomNumber = prompt(`Please enter the room you'd like to book: 
 `)
 
-        for (let i = 0; i < javaScriptHotel.availableRoomNumbers.length; i++) {
-            for (let j = 0; j < javaScriptHotel.availableRoomNumbers[i].length; j++) {
-                if (roomNumber == javaScriptHotel.availableRoomNumbers[i][j]) {
+        for (let i = 0; i < hotel.availableRoomNumbers.length; i++) {
+            for (let j = 0; j < hotel.availableRoomNumbers[i].length; j++) {
+                if (roomNumber == hotel.availableRoomNumbers[i][j]) {
                     roomNumber = document.getElementById(roomNumber);
                     isRoomFlag = true;
                     bookRoom(roomNumber);
@@ -423,6 +486,7 @@ function bookByRoomNumber() {
 
 function bookByRoomType() {
     let isType, roomType;
+
     while (isType !== true) {
         roomType = prompt(`What type of room would you like to book ?
 
@@ -438,7 +502,9 @@ function bookByRoomType() {
 }
 
 function createBookByRoomType() {
-    let btn = document.createElement("button");
+    let btn;
+
+    btn = document.createElement("button");
     btn.id = "bookbytype";
     btn.innerText = "Book by Room Type";
 
@@ -446,7 +512,9 @@ function createBookByRoomType() {
 }
 
 function createCheckoutByNumber() {
-    let btn = document.createElement("button");
+    let btn;
+
+    btn = document.createElement("button");
     btn.id = "checkoutnumber";
     btn.innerText = "Check out by Room Number";
 
@@ -455,7 +523,8 @@ function createCheckoutByNumber() {
 
 function checkOutNumber() {
     let roomNumber, bookedRooms, isRoom;
-    do {
+
+    while (isRoom !== true) {
         roomNumber = prompt("What is the room number you'd like to check out ?");
         bookedRooms = document.getElementById("bookedroomslist");
         bookedRooms = bookedRooms.getElementsByTagName("li");
@@ -472,6 +541,35 @@ function checkOutNumber() {
                 isRoom = false;
             }
         }
-    } while (isRoom === false)
+    }
 
+}
+
+function typeOfBooking(booking) {
+    let isFloor;
+    if (parseInt(booking)) {
+        for (let i = 0; i < hotel.availableRoomNumbers.length; i++) {
+            for (let j = 0; j < hotel.availableRoomNumbers[i].length; j++) {
+                if (hotel.availableRoomNumbers[i][j] == booking) {
+                    return booking;
+                } else {
+                    isFloor = true;
+                }
+            }
+        }
+        if (isFloor === true) {
+            return isFloor;
+        }
+
+    } else if (booking.innerText) {
+        for (let i = 0; i < hotel.availableRoomNumbers.length; i++) {
+            for (let j = 0; j < hotel.availableRoomNumbers[i].length; j++) {
+                if (hotel.availableRoomNumbers[i][j] == booking.innerText) {
+                    return parseInt(booking.innerText);
+                }
+            }
+        }
+    } else if (typeof booking == "string") {
+        return booking;
+    }
 }
