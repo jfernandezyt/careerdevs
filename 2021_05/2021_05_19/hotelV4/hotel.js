@@ -13,7 +13,6 @@ function createHotel(floors, rooms) {
             hotel.availableRoomNumbers[i].push((i + 1) * 1000 + j);
         }
     }
-    //console.log(hotel);
     return hotel;
 
 }
@@ -21,7 +20,6 @@ function createHotel(floors, rooms) {
 const floors = 6;
 const rooms = 10;
 const hotel = createHotel(floors, rooms);
-console.log(hotel)
 
 /* Version 1
 Create an index.html and hotel.js file.  Connect the files via a script tag.
@@ -311,7 +309,6 @@ The cost would be ${cost}, you curently have ${currentFunds} in your wallet`);
             } else {
                 for (let i = 0; i < availRooms.length; i++) {
                     if (availRooms[i].innerText == hotel.availableRoomNumbers[index][0]) {
-                        console.log('heyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy')
                         customer.bookedRoom = hotel.availableRoomNumbers[index].splice(0, 1)[0];
                         customer.cost = cost;
                         hotel.bookedRooms[index].push(customer);
@@ -530,11 +527,9 @@ function checkOutNumber() {
         bookedRooms = bookedRooms.getElementsByTagName("li");
 
         for (let i = 0; i < bookedRooms.length; i++) {
-            //console.log(roomNumber, bookedRooms[i].innerText)
             if (roomNumber == bookedRooms[i].innerText) {
                 roomNumber = document.getElementById(roomNumber);
                 isRoom = true;
-                console.log("test1")
                 checkOut(roomNumber);
                 break;
             } else {
