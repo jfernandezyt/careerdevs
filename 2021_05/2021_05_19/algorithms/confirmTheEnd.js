@@ -5,12 +5,13 @@ This challenge can be solved with the .endsWith() method, which was introduced i
 */
 
 function confirmEnding(str, target) {
-    let isEnd;
-    let beginning = str.indexOf(target);
-    for (let i = 1; i < str.length; i++) {
-        console.log(str.indexOf(target, (beginning + target.length) + i));
+    let lastCharacters;
+    lastCharacters = str.length - target.length;
+    
+    if(str.indexOf(target, lastCharacters) === -1){
+        return false;
     }
-
+    return true;
 }
 
-confirmEnding("Congratulation", "on");
+confirmEnding("Bastian", "n");
