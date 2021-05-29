@@ -8,8 +8,8 @@ Likewise, getIndexToIns([20,3,5], 19) should return 2 because once the array has
 */
 
 function getIndexToIns(arr, num) {
-    arr.sort((a, b) => a - b);
-    
+    arr.sort((a, b) => {return a - b});
+
     if(arr.length === 0){
         return 0
     }
