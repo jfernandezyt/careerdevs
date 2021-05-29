@@ -24,7 +24,7 @@ const rentalCompany = rentalPlace(locations, carsPerLocation);
 //console.log(rentalCompany.locations[0]);
 
 function loadAllElements() {
-    let mainDiv, search, bookFirstCarBtn, bookByLocationBtn, bookByCarNumberBtn, availableCarsList, bookedCarsList, wallet, revenue, bookCarBtn, bookLocationBtn, bookCarNumBtn;
+    let mainDiv, search, bookFirstCarBtn, bookByLocationBtn, bookByCarNumberBtn, availableCarsList, bookedCarsList, wallet, revenue, bookCarBtn, bookLocationBtn, bookCarNumBtn, close, closeOne;
 
     mainDiv = document.createElement("div");
     mainDiv.id = "maindiv";
@@ -35,7 +35,9 @@ function loadAllElements() {
     bookByLocationBtn = createBookByLocationBtn();
     bookByCarNumberBtn = createBookByCarNumberBtn();
     availableCarsList = createAvailableCarsList(); //array
+    close = createCloseOutBtn();
     bookedCarsList = createBookedCarsList()//array
+    closeOne = createCloseOutOneBtn();
     wallet = createWallet()//array
     revenue = createRevenue()//array
 
@@ -45,8 +47,10 @@ function loadAllElements() {
     mainDiv.appendChild(bookByCarNumberBtn);
     mainDiv.appendChild(availableCarsList[0]);
     mainDiv.appendChild(availableCarsList[1]);
+    mainDiv.appendChild(close);
     mainDiv.appendChild(bookedCarsList[0]);
     mainDiv.appendChild(bookedCarsList[1]);
+    mainDiv.appendChild(closeOne);
     mainDiv.appendChild(wallet[0]);
     mainDiv.appendChild(wallet[1]);
     mainDiv.appendChild(wallet[2]);
@@ -57,12 +61,16 @@ function loadAllElements() {
     bookCarBtn = document.getElementById("bookfirstcar");
     bookLocationBtn = document.getElementById("bookbylocation");
     bookCarNumBtn = document.getElementById("bookbycarnum");
+    closeAllBtn = document.getElementById("closeoutall");
+    closeOneBtn = document.getElementById("closeoutone");
     walletBtn = document.getElementById("walletbutton");
 
     searchBar.setAttribute("onkeyup", "search()");
     bookCarBtn.setAttribute("onclick", "bookFirstCarAvailable()");
     bookLocationBtn.setAttribute("onclick", "bookByLocation()");
     bookCarNumBtn.setAttribute("onclick", "bookByCarNumber()");
+    closeAllBtn.setAttribute("onclick", "closeContract()");
+    closeOneBtn.setAttribute("onclick", "closeOne()");
     walletBtn.setAttribute("onclick", "addFunds()");
     searchBar.focus();
 
@@ -207,8 +215,29 @@ function createRevenue() {
     return [label, revenue];
 }
 
+function createCloseOutBtn() {
+    let btn;
+
+    btn = document.createElement("button");
+    btn.id = "closeoutall";
+    btn.innerText = "Close out all open contracts.";
+
+    return btn;
+}
+
+function createCloseOutOneBtn() {
+    let btn;
+
+    btn = document.createElement("button");
+    btn.id = "closeoutone";
+    btn.innerText = "Close out a specific customer contract or car.";
+
+    return btn;
+}
+
 function book(carToBook, customer) {
     let bookedList, currentFunds, revenue, tempCustomer = {};
+
     if (customer === undefined) {
         tempCustomer.name = prompt("Please enter your name: ");
         tempCustomer.daysRenting = prompt("Please enter the amount of days renting the vehicle for: ");
@@ -229,6 +258,7 @@ function book(carToBook, customer) {
                     customer.cost = rentalCompany.locations[i][j].costADay * customer.daysRenting;
                     if (customer.cost > currentFunds) {
                         alert(`Sorry, you could not book this vehicle, the cost(${customer.cost}) exceeded your current funds.`);
+                        return;
                     } else {
                         alert(`Congratulations ${customer.name}, you just booked ${rentalCompany.locations[i][j].carId}, for ${customer.daysRenting} days. \n This came out to a total of ${customer.cost}`)
                         currentFunds -= customer.cost;
@@ -242,6 +272,7 @@ function book(carToBook, customer) {
                         carToBook.removeAttribute("onclick");
                         carToBook.setAttribute("onclick", "closeContract(this)");
                         bookedList.appendChild(carToBook);
+                        return;
                     }
                 }
             }
@@ -263,15 +294,16 @@ function closeContract(car) {
         for (let i = 0; i < rentalCompany.locations.length; i++) {
             for (let j = 0; j < rentalCompany.locations[i].length; j++) {
                 if (car.innerText === rentalCompany.locations[i][j].carId) {
-                    rentalCompany.locations[i][j].isBooked = false;
-                    rentalCompany.locations[i][j].customer = "";
+                    rentalCompany.locations[i][j].isBooked = false;                   
                     car.removeAttribute("onclick");
                     car.setAttribute("onclick", "book(this)");
                     availableList.appendChild(car);
                     newAvailList = createAvailableCarsList();
                     newAvailList = newAvailList[1];
-                    alert(`Thank you for booking with us, ${customer.name}, you rented the car for ${rentalCompany.locations[i][j].daysRenting} at a cost of ${rentalCompany.locations[i][j],costADay} per day, \ntotaling ${rentalCompany.locations[i][j].customer.cost}.`)
+                    alert(`Thank you for booking with us, ${rentalCompany.locations[i][j].customer.name}, you rented the car for ${rentalCompany.locations[i][j].daysRenting} at a cost of ${rentalCompany.locations[i][j].costADay} per day, \ntotaling ${rentalCompany.locations[i][j].customer.cost}.`)
+                    rentalCompany.locations[i][j].customer = "";
                     mainDiv.replaceChild(newAvailList, availableList)
+                    return;
                 }
             }
         }
@@ -280,8 +312,8 @@ function closeContract(car) {
             for (let j = 0; j < rentalCompany.locations[i].length; j++) {
                 if (rentalCompany.locations[i][j].isBooked === true) {
                     rentalCompany.locations[i][j].isBooked = false;
-                    message += rentalCompany.locations[i][j].customer.name + `for ${rentalCompany.locations[i][j].customer.rentingDays}\n`;
-                    rentalCompany.locations[i][j].customer = "";                    
+                    message += rentalCompany.locations[i][j].customer.name + `for ${rentalCompany.locations[i][j].customer.rentingDays} days\n`;
+                    rentalCompany.locations[i][j].customer = "";
                 }
             }
         }
@@ -361,4 +393,27 @@ function bookByCarNumber() {
             return;
         }
     }
+}
+
+function closeOne() {
+    let car, temp;
+
+    temp = prompt("Please enter customer name or car #: ");
+
+    for (let i = 0; i < rentalCompany.locations.length; i++) {
+        for (let j = 0; j < rentalCompany.locations[i].length; j++) {
+            if (rentalCompany.locations[i][j].isBooked === true && rentalCompany.locations[i][j].customer.name === temp) {
+                car = document.getElementById(rentalCompany.locations[i][j].carId);
+                closeContract(car)
+                return;
+            }
+            if (rentalCompany.locations[i][j].isBooked === true && rentalCompany.locations[i][j].carId === temp) {
+                car = document.getElementById(rentalCompany.locations[i][j].carId);
+                closeContract(car)
+                return;
+            }
+
+        }
+    }
+    alert("This is not a valid entry, please try again");
 }
