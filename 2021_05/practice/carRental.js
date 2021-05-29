@@ -250,8 +250,8 @@ function book(carToBook, customer) {
 }
 
 function closeContract(car) {
-    let availableList, mainDiv, newAvailList, bookedList, newBookedList;
-
+    let availableList, mainDiv, newAvailList, bookedList, newBookedList, message;
+    message = "Thank you for booking with us: \n\n"
     mainDiv = document.getElementById("maindiv");
 
     availableList = document.getElementById("availablecars");
@@ -270,6 +270,7 @@ function closeContract(car) {
                     availableList.appendChild(car);
                     newAvailList = createAvailableCarsList();
                     newAvailList = newAvailList[1];
+                    alert(`Thank you for booking with us, ${customer.name}, you rented the car for ${rentalCompany.locations[i][j].daysRenting} at a cost of ${rentalCompany.locations[i][j],costADay} per day, \ntotaling ${rentalCompany.locations[i][j].customer.cost}.`)
                     mainDiv.replaceChild(newAvailList, availableList)
                 }
             }
@@ -279,10 +280,13 @@ function closeContract(car) {
             for (let j = 0; j < rentalCompany.locations[i].length; j++) {
                 if (rentalCompany.locations[i][j].isBooked === true) {
                     rentalCompany.locations[i][j].isBooked = false;
+                    message += rentalCompany.locations[i][j].customer.name + `for ${rentalCompany.locations[i][j].customer.rentingDays}\n`;
                     rentalCompany.locations[i][j].customer = "";                    
                 }
             }
         }
+        message += "\nWe hope to see you all again!";
+        alert(message);
         mainDiv.replaceChild(newBookedList, bookedList);
     }
 }
