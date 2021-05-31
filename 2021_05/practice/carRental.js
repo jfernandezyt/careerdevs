@@ -66,9 +66,9 @@ function loadAllElements() {
     walletBtn = document.getElementById("walletbutton");
 
     searchBar.setAttribute("onkeyup", "search()");
-    bookCarBtn.setAttribute("onclick", "bookFirstCarAvailable()");
-    bookLocationBtn.setAttribute("onclick", "bookByLocation()");
-    bookCarNumBtn.setAttribute("onclick", "bookByCarNumber()");
+    bookCarBtn.setAttribute("onclick", "createModal(this)");
+    bookLocationBtn.setAttribute("onclick", "createModal(this)");
+    bookCarNumBtn.setAttribute("onclick", "createModal(this)");
     closeAllBtn.setAttribute("onclick", "closeContract()");
     closeOneBtn.setAttribute("onclick", "closeOne()");
     walletBtn.setAttribute("onclick", "addFunds()");
@@ -124,7 +124,7 @@ function createAvailableCarsList() {
                 temp.id = rentalCompany.locations[i][j].carId;
                 temp.innerText = rentalCompany.locations[i][j].carId;
                 temp.style.display = "none";
-                temp.setAttribute("onclick", "book(this)");
+                temp.setAttribute("onclick", "createModal(this)");
                 list.appendChild(temp);
             }
         }
@@ -236,13 +236,7 @@ function createCloseOutOneBtn() {
 }
 
 function book(carToBook, customer) {
-    let bookedList, currentFunds, revenue, tempCustomer = {};
-
-    if (customer === undefined) {
-        tempCustomer.name = prompt("Please enter your name: ");
-        tempCustomer.daysRenting = prompt("Please enter the amount of days renting the vehicle for: ");
-        customer = tempCustomer;
-    }
+    let bookedList, currentFunds, revenue;
 
     bookedList = document.getElementById("bookedcars");
     revenue = document.getElementById("revenue");
@@ -260,6 +254,7 @@ function book(carToBook, customer) {
                         alert(`Sorry, you could not book this vehicle, the cost(${customer.cost}) exceeded your current funds.`);
                         return;
                     } else {
+                        console.log(customer, "book");
                         alert(`Congratulations ${customer.name}, you just booked ${rentalCompany.locations[i][j].carId}, for ${customer.daysRenting} days. \n This came out to a total of ${customer.cost}`)
                         currentFunds -= customer.cost;
 
@@ -294,7 +289,7 @@ function closeContract(car) {
         for (let i = 0; i < rentalCompany.locations.length; i++) {
             for (let j = 0; j < rentalCompany.locations[i].length; j++) {
                 if (car.innerText === rentalCompany.locations[i][j].carId) {
-                    rentalCompany.locations[i][j].isBooked = false;                   
+                    rentalCompany.locations[i][j].isBooked = false;
                     car.removeAttribute("onclick");
                     car.setAttribute("onclick", "book(this)");
                     availableList.appendChild(car);
@@ -312,7 +307,7 @@ function closeContract(car) {
             for (let j = 0; j < rentalCompany.locations[i].length; j++) {
                 if (rentalCompany.locations[i][j].isBooked === true) {
                     rentalCompany.locations[i][j].isBooked = false;
-                    message += rentalCompany.locations[i][j].customer.name + `for ${rentalCompany.locations[i][j].customer.rentingDays} days\n`;
+                    message += rentalCompany.locations[i][j].customer.name + ` for ${rentalCompany.locations[i][j].customer.daysRenting} days\n`;
                     rentalCompany.locations[i][j].customer = "";
                 }
             }
@@ -321,35 +316,24 @@ function closeContract(car) {
         alert(message);
         mainDiv.replaceChild(newBookedList, bookedList);
     }
+    return;
 }
 
-function bookFirstCarAvailable() {
-    let availCars, customer = {}
+function bookFirstCarAvailable(cust) {
+    let availCars, customer;
 
-    customer.name = prompt("Please enter your name: ");
-    customer.daysRenting = prompt("Please enter the amount of days renting the vehicle for: ");
-
+    customer = cust;
     availCars = document.getElementById("availablecars");
-
+    console.log(customer, "bookFirstCarAvailable");
     book(availCars.firstChild, customer);
     return;
 }
 
-function bookByLocation() {
-    let availCars, index, location, isLocation, customer = {}
+function bookByLocation(cust, loc) {
+    let availCars, index, location, customer;
 
-    customer.name = prompt("Please enter your name: ");
-    customer.daysRenting = prompt("Please enter the amount of days renting the vehicle for: ");
-
-    while (isLocation !== true) {
-        location = prompt(`which location would you like to book from ?\n (please enter a number from 1 - ${rentalCompany.locations.length + 1})`);
-        location = parseInt(location);
-        if (location < 0 || location > rentalCompany.locations.length + 1) {
-            isLocation = false;
-        } else {
-            isLocation = true;
-        }
-    }
+    location = loc;
+    customer = cust;
 
     index = location - 1;
     availCars = document.getElementById("availablecars");
@@ -363,25 +347,16 @@ function bookByLocation() {
             }
         }
     }
-
+    alert("there aren't any more vehicles available at this location.")
+    return;
 }
 
-function bookByCarNumber() {
-    let availCars, carNum, isCarNum, customer = {}, temp = "car ";
+function bookByCarNumber(cust, number) {
+    let availCars, carNum, customer, temp = "car ";
 
-    customer.name = prompt("Please enter your name: ");
-    customer.daysRenting = prompt("Please enter the amount of days renting the vehicle for: ");
+    customer = cust
+    carNum = number;
 
-    while (isCarNum !== true) {
-        carNum = prompt(`Please enter the car id of the vehicle about to be rented (up to the id #${(locations * carsPerLocation) + 1}): `)
-        carNum = parseInt(carNum);
-        if (carNum < 0 || carNum > (locations * carsPerLocation) + 1) {
-            isCarNum = false;
-        } else {
-            isCarNum = true;
-        }
-
-    }
     carNum = temp + String(carNum);
     availCars = document.getElementById("availablecars");
     availCars = document.getElementsByTagName("li");
@@ -393,12 +368,13 @@ function bookByCarNumber() {
             return;
         }
     }
+    return;
 }
 
-function closeOne() {
+function closeOne(input) {
     let car, temp;
 
-    temp = prompt("Please enter customer name or car #: ");
+    temp = input;
 
     for (let i = 0; i < rentalCompany.locations.length; i++) {
         for (let j = 0; j < rentalCompany.locations[i].length; j++) {
@@ -416,4 +392,283 @@ function closeOne() {
         }
     }
     alert("This is not a valid entry, please try again");
+    return;
+}
+
+function createModal(element) {
+    // id's for the buttons bookfirstcar, bookbylocation, bookbycarnum  (html element property localName)
+    let elementType, div, content, close, formType, mainDiv;
+
+    mainDiv = document.getElementById("maindiv");
+
+    div = document.createElement("div");
+    div.id = "myModal";
+    div.className = "modal";
+
+    content = document.createElement("div");
+    content.className = "modal-content";
+
+    close = document.createElement("span");
+    close.className = "close";
+    close.innerHTML = "&times;"
+    close.setAttribute("onclick", "closeModal()");
+    elementType = element.localName;
+
+    content.appendChild(close);
+
+    if (elementType === "button") {
+        formType = element.id;
+    } else if (elementType === "li") {
+        formType = "passvalue";
+    }
+
+    if (formType === "bookfirstcar") {
+
+        let element1 = document.createElement("label");
+        element1.htmlFor = "customername";
+        element1.innerText = "Name: "
+        content.appendChild(element1);
+
+        let element2 = document.createElement("input");
+        element2.type = "text";
+        element2.name = "customername";
+        element2.id = "customername";
+        content.appendChild(element2);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element3 = document.createElement("label");
+        element3.htmlFor = "bookingdays";
+        element3.innerText = "Days Booking: ";
+        content.appendChild(element3);
+
+        let element4 = document.createElement("input");
+        element4.type = "text";
+        element4.name = "bookingdays";
+        element4.id = "bookingdays";
+        content.appendChild(element4);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+
+        let element5 = document.createElement("button");
+        element5.innerText = "Book vehicle";
+        element5.setAttribute("onclick", "dictate('bookfirstcar')")
+        content.appendChild(element5);
+    } else if (formType === "bookbylocation") {
+
+        let element1 = document.createElement("label");
+        element1.htmlFor = "customername";
+        element1.innerText = "Name: "
+        content.appendChild(element1);
+
+        let element2 = document.createElement("input");
+        element2.type = "text";
+        element2.name = "customername";
+        element2.id = "customername";
+        content.appendChild(element2);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element3 = document.createElement("label");
+        element3.htmlFor = "bookingdays";
+        element3.innerText = "Days Booking: ";
+        content.appendChild(element3);
+
+        let element4 = document.createElement("input");
+        element4.type = "text";
+        element4.name = "bookingdays";
+        element4.id = "bookingdays";
+        content.appendChild(element4);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element5 = document.createElement("label");
+        element5.htmlFor = "carlocation";
+        element5.innerText = `Car Location (# between 1 and ${rentalCompany.locations.length + 1}): `;
+        content.appendChild(element5);
+
+        let element6 = document.createElement("input");
+        element6.type = "text";
+        element6.name = "carlocation";
+        element6.id = "carlocation";
+        content.appendChild(element6);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element7 = document.createElement("button");
+        element7.innerText = "Book vehicle";
+        element7.setAttribute("onclick", "dictate('bookbylocation')");
+        content.appendChild(element7);
+    } else if (formType === "bookbycarnum") {
+
+        let element1 = document.createElement("label");
+        element1.htmlFor = "customername";
+        element1.innerText = "Name: "
+        content.appendChild(element1);
+
+        let element2 = document.createElement("input");
+        element2.type = "text";
+        element2.name = "customername";
+        element2.id = "customername";
+        content.appendChild(element2);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element3 = document.createElement("label");
+        element3.htmlFor = "bookingdays";
+        element3.innerText = "Days Booking: ";
+        content.appendChild(element3);
+
+        let element4 = document.createElement("input");
+        element4.type = "text";
+        element4.name = "bookingdays";
+        element4.id = "bookingdays";
+        content.appendChild(element4);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element5 = document.createElement("label");
+        element5.htmlFor = "carnumber";
+        element5.innerText = "Car: ";
+        content.appendChild(element5);
+
+        let element6 = document.createElement("input");
+        element6.type = "text";
+        element6.name = "carnumber";
+        element6.id = "carnumber";
+        content.appendChild(element6);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element7 = document.createElement("button");
+        element7.innerText = "Book vehicle";
+        element7.setAttribute("onclick", "dictate('bookbycarnum')");
+        content.appendChild(element7);
+    } else if (formType === "closeoutone") {
+        let element1 = document.createElement("label");
+        element1.htmlFor = "closeinput";
+        element1.innerText = "Name: "
+        content.appendChild(element1);
+
+        let element2 = document.createElement("input");
+        element2.type = "text";
+        element2.name = "closeinput";
+        element2.id = "closeinput";
+        content.appendChild(element2);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element3 = document.createElement("button");
+        element3.innerText = "Book vehicle";
+        element3.setAttribute("onclick", "dictate('closeone')");
+        content.appendChild(element3);
+    } else if (formType === "passvalue") {
+        let element1 = document.createElement("label");
+        element1.htmlFor = "customername";
+        element1.innerText = "Name: "
+        content.appendChild(element1);
+
+        let element2 = document.createElement("input");
+        element2.type = "text";
+        element2.name = "customername";
+        element2.id = "customername";
+        content.appendChild(element2);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element3 = document.createElement("label");
+        element3.htmlFor = "bookingdays";
+        element3.innerText = "Days Booking: ";
+        content.appendChild(element3);
+
+        let element4 = document.createElement("input");
+        element4.type = "text";
+        element4.name = "bookingdays";
+        element4.id = "bookingdays";
+        content.appendChild(element4);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element5 = document.createElement("label");
+        element5.htmlFor = "carnumber";
+        element5.innerText = "Car: ";
+        content.appendChild(element5);
+
+        let element6 = document.createElement("input");
+        element6.type = "text";
+        element6.name = "carnumber";
+        element6.id = "carnumber";
+        let temp = element.innerText;
+        let value = "";
+        for(let i =0; i < temp.length; i++){
+            if(parseInt(temp[i])){
+                value += temp[i];
+            }            
+        }
+        element6.value = value;
+        content.appendChild(element6);
+        content.appendChild(document.createElement("br"));
+        content.appendChild(document.createElement("br"));
+
+        let element7 = document.createElement("button");
+        element7.innerText = "Book vehicle";
+        element7.setAttribute("onclick", "dictate('bookbycarnum')");
+        content.appendChild(element7);
+    }
+    div.appendChild(content);
+    mainDiv.appendChild(div);
+}
+
+function closeModal() {
+    let modal;
+
+    modal = document.getElementById("myModal");
+
+    if (modal && modal.style.display !== "none") {
+        modal.remove();
+    }
+
+}
+
+function dictate(type) {
+    let name, bookingDays, location, carNum, customer = {};
+    name = document.getElementById("customername");
+    bookingDays = document.getElementById("bookingdays");
+    location = document.getElementById("carlocation");
+    carNum = document.getElementById("carnumber");
+
+    if (location) {
+        location = parseInt(location.value);
+    } else if (carNum) {
+        carNum = parseInt(carNum.value);
+    }
+
+    customer.name = name.value;
+    customer.daysRenting = bookingDays.value;
+
+    closeModal();
+
+    if (type === 'bookfirstcar') {
+        bookFirstCarAvailable(customer);
+        return;
+    } else if (type === 'bookbylocation') {
+        if (location > 0 && location < (rentalCompany.locations.length + 1)) {
+            bookByLocation(customer, location);
+            return;
+        }
+        alert("The location entered doesn't exist.")
+    } else if (type === 'bookbycarnum') {
+        if (carNum > 0 || carNum < (locations * carsPerLocation) + 1) {
+            bookByCarNumber(customer, carNum);
+            return;
+        }else{
+            bookByCarNumber(customer, carNum);
+            return;
+        }
+    } else if (type === 'closeone') {
+        let input = (customer) ? customer : carNum;
+        closeOne(input);
+        return;
+    }
 }
