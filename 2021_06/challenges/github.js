@@ -15,21 +15,44 @@ As already stated this technique uses web api's and that includes XHR. It is a g
 
 
 
-window.onload =  myFunction();
+//window.onload =  myFunction();
 
 function myFunction(){
+    // 1) Creating an instance of an XMLHttpRequest
+    let element = document.createElement("div");
+    let element1 = document.createElement("img");
+    let btn = document.getElementById("btn");
+    btn.remove();
     let xhr = new XMLHttpRequest();
     let url = 'https://api.github.com/users';
+    //console.log(xhr.status,1)
+    // console.log(xhr.readyState,'a')
+    // 2) Open the Http Request 
     xhr.open("GET", url)
-
-    xhr.onload = function(e){
-        if(e){
-            console.log(e);
+    //console.log(xhr.status,2)
+    // console.log(xhr.readyState,'b')
+    // 3) Create onload callback to handle response
+    xhr.onload = function (ProgressEvent) {
+        if(ProgressEvent){
+            console.log('hererererere')
+            console.log(ProgressEvent , 1111111);
         }
+        /************************************** */
         let temp = JSON.parse(this.responseText);
-
         console.log(temp);
+        element.innerText = temp[0].login;
+        element1.src= temp[0].avatar_url
+        /*************************************** */
     }
 
+    //console.log(xhr.responseText, "response text")
+    //console.log(xhr.status,4)
+    // console.log(xhr.readyState,'d')
+    // 4) Send our XMLHttpRequest to be fulfilled or not 
     xhr.send();
+    //console.log(xhr.status,5)
+    // console.log(xhr.readyState,'e')
+
+    document.body.appendChild(element);
+    document.body.appendChild(element1);
 }
