@@ -181,6 +181,8 @@ async function handleModal(modal, state) {
         outputHTML(modal);
     } else if (typeof state !== undefined && state === 'pickQuestions') {
         let allQuestions = await getInfo(pickQuestionsEndPoint)
+        let div = document.createElement("div");
+        div.id = "listofquestions"
         localStorage.setItem('allQuestions', allQuestions);
         allQuestions = JSON.parse(allQuestions);
 
@@ -196,16 +198,17 @@ async function handleModal(modal, state) {
             checkbox.value = allQuestions.results[i].question;
             checkbox.value = allQuestions.results[i].question;
 
-            modal.children[0].appendChild(checkbox);
-            modal.children[0].appendChild(label);
-            modal.children[0].appendChild(document.createElement("br"));
-            
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            div.appendChild(document.createElement("br"));
+
 
         }
         btn1 = document.createElement("button");
         btn1.setAttribute("onclick", "generatingChosenQuestions()");
         btn1.innerText = "Submit";
-        modal.children[0].appendChild(btn1);
+        div.appendChild(btn1);
+        modal.children[0].appendChild(div);
         outputHTML(modal);
     }
     return;
@@ -226,28 +229,30 @@ async function handleModal(modal, state) {
 // }
 //Structure was needed in order to simulate an api response
 function generatingChosenQuestions() {
-    let chosenquestion, allQuestions, obj = {results:[]};
+    if (validateNumberOfSelections() === true) {
+        let chosenquestion, allQuestions, obj = { results: [] };
 
-    allQuestions = JSON.parse(localStorage.getItem('allQuestions'));
-    chosenquestion = document.getElementsByTagName("input");
-  
-    for(let i = 0; i < 3; i++){
-        obj.results.push({})
-        obj.results[i].results = []
-        
-    }
-    for (let i = 0; i < chosenquestion.length; i++) {
-        if (chosenquestion[i].checked) {
-            if(i < 6){              
-                obj.results[0].results.push(allQuestions.results[i]);
-            }else if (i < 12){                
-                obj.results[1].results.push(allQuestions.results[i]);
-            } else{                
-                obj.results[2].results.push(allQuestions.results[i]);
+        allQuestions = JSON.parse(localStorage.getItem('allQuestions'));
+        chosenquestion = document.getElementsByTagName("input");
+
+        for (let i = 0; i < 3; i++) {
+            obj.results.push({})
+            obj.results[i].results = []
+
+        }
+        for (let i = 0; i < chosenquestion.length; i++) {
+            if (chosenquestion[i].checked) {
+                if (i < 6) {
+                    obj.results[0].results.push(allQuestions.results[i]);
+                } else if (i < 12) {
+                    obj.results[1].results.push(allQuestions.results[i]);
+                } else {
+                    obj.results[2].results.push(allQuestions.results[i]);
+                }
             }
         }
+        generateQuestions(obj);
     }
-    generateQuestions(obj);
     return;
 
 }
@@ -274,11 +279,9 @@ async function generateQuestions(chosenQuestions) {
     if (chosenQuestions == undefined) {
         for (let i = 0; i < endpoints.length; i++) {
             let questions = await getInfo(endpoints[i]);
-            console.log(JSON.parse(questions));
             localStorage.setItem("round" + (i + 1).toString(), questions);
         }
     } else if (chosenQuestions) {
-        console.log("in else if", chosenQuestions);
         for (let i = 0; i < chosenQuestions.results.length; i++) {
             let object = chosenQuestions.results[i]
             localStorage.setItem("round" + (i + 1).toString(), JSON.stringify(object));
@@ -318,7 +321,7 @@ function getQuestions(roundNumber) {
     previousRound = document.getElementById(`round${roundNumber - 1}`);
     counter = 1;
 
-    if(modal){
+    if (modal) {
         closeModal();
     }
 
@@ -443,8 +446,6 @@ function updateScores(roundNumber) {
     player1score = (localStorage.getItem('player1score')) ? parseInt(localStorage.getItem('player1score')) : null;
     player2score = (localStorage.getItem('player2score')) ? parseInt(localStorage.getItem('player2score')) : null;
 
-    console.log(player1score, player2score, 'Player scores!!!!');
-
     let p1CorrectAnswers = JSON.parse(localStorage.getItem(`player1round${roundNumber}correctanswers`));
     let p2CorrectAnswers = JSON.parse(localStorage.getItem(`player2round${roundNumber}correctanswers`));
 
@@ -544,3 +545,25 @@ function outputHTML() {
     return;
 }
 
+function validateNumberOfSelections() {
+    let list = document.getElementsByName("listofquestions");
+    let counter = 0;
+    if (list) {
+        let input = document.getElementsByTagName("input");
+        for (let i = 0; i < input.length; i++) {
+            if (input[i].checked) {
+                counter++;
+            }
+        }
+        if (counter > 18) {
+            alert(`You have too many selections, remove: ${counter - 18} selections`);
+            return false;
+        } else if (counter < 18) {
+            alert(`You don't have enough selections, add ${18 - counter} selections`);
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+}
