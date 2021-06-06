@@ -45,7 +45,7 @@ function isValidSession() {
 function clearLocal() {
     let p1 = document.getElementById("player1score");
     let p2 = document.getElementById("player2score");
-    if(p1 || p2){
+    if (p1 || p2) {
         p1.remove();
         p2.remove();
     }
@@ -576,23 +576,23 @@ function validateNumberOfSelections() {
     }
 }
 
-function openControls(){
+function openControls() {
     let audio = document.getElementById("musicplayer");
     let div = document.getElementById("musicplayerH");
-    let close;
-
-    close = document.createElement("span");
-    close.className = "close";
-    close.style.float = "left";
-    close.innerHTML = "&times;"
-    close.setAttribute("onclick", "closeControl()");
-    
+    let close = document.getElementsByTagName("span")[0];
+    if (!close) {
+        close = document.createElement("span");
+        close.className = "close";
+        close.style.float = "left";
+        close.innerHTML = "&times;"
+        close.setAttribute("onclick", "closeControl()");
+        div.appendChild(close)
+    }
     audio.setAttribute("controls", "");
-    div.appendChild(close)
-    
+
     return
 }
-function closeControl(){
+function closeControl() {
     let audio = document.getElementById("musicplayer");
     let close = document.getElementsByTagName("span");
     close[0].remove();
@@ -601,22 +601,22 @@ function closeControl(){
     return;
 }
 
-function updateScoresHTML(){
+function updateScoresHTML() {
     let mainDiv = document.getElementById("maindiv");
     let p1 = document.getElementById("player1score");
     let p2 = document.getElementById("player2score");
 
-    if(localStorage.getItem('player1score') && localStorage.getItem('player2score') && !p1 && !p2){
-        let p1 = document.createElement("p") , p2 = document.createElement("p");
-    
+    if (localStorage.getItem('player1score') && localStorage.getItem('player2score') && !p1 && !p2) {
+        let p1 = document.createElement("p"), p2 = document.createElement("p");
+
         p1.id = "player1score";
-        p1.innerText = `${localStorage.getItem("player1Name")} score: ` +localStorage.getItem('player1score');
+        p1.innerText = `${localStorage.getItem("player1Name")} score: ` + localStorage.getItem('player1score');
         p2.id = "player2score";
         p2.innerText = `${localStorage.getItem("player2Name")} score: ` + localStorage.getItem('player2score');
         mainDiv.insertBefore(p1, mainDiv.children[0]);
         mainDiv.insertBefore(p2, mainDiv.children[1]);
-    }else if(p1 && p2){
-        p1.innerText = `${localStorage.getItem("player1Name")} score: ` +localStorage.getItem('player1score');
+    } else if (p1 && p2) {
+        p1.innerText = `${localStorage.getItem("player1Name")} score: ` + localStorage.getItem('player1score');
         p2.innerText = `${localStorage.getItem("player2Name")} score: ` + localStorage.getItem('player2score');
     }
 }
