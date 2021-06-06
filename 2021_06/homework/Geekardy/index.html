@@ -11,10 +11,19 @@
     <link rel="stylesheet" href="styles.css">
     <script src="./geekardy.js"></script>
 </head>
+
 <body>
+    <div id="musicplayerH">
+        <audio id="musicplayer" autoplay loop>
+            <source src="./media/Jeopardy-theme-song.mp3">
+        </audio>
+    </div>
     <div id="maindiv">
         <button onclick="startNewGame()">Start a new game</button>
         <button onclick="continueAGame()">Continue a game</button>
-    </div>    
+        <button onclick="openControls()">Music Controls</button>
+        
+    </div>
 </body>
+
 </html>

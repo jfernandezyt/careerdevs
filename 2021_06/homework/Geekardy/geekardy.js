@@ -18,8 +18,10 @@ function continueAGame() {
     if (isValidSession() === false) {
         alert("Unfortunately, the previous game is not a valid session, but you can start a new game")
         startNewGame();
+        return;
     }
     getQuestions(localStorage.getItem("lastplayedround"));
+    return;
 }
 
 //checking if session is valid
@@ -41,6 +43,12 @@ function isValidSession() {
 
 //clear all localstorage items
 function clearLocal() {
+    let p1 = document.getElementById("player1score");
+    let p2 = document.getElementById("player2score");
+    if(p1 || p2){
+        p1.remove();
+        p2.remove();
+    }
     for (let j in localStorage) {
         localStorage.removeItem(j);
     }
@@ -426,9 +434,9 @@ function getQuestions(roundNumber) {
 
     btn.innerText = "Next Round";
     if (roundNumber == 3) {
-        btn.setAttribute("onclick", `updateScores(3)`);
+        btn.setAttribute("onclick", `updateScores(3); updateScoresHTML()`);
     } else {
-        btn.setAttribute("onclick", `updateScores(${roundNumber}); getQuestions(${parseInt(roundNumber) + 1})`);
+        btn.setAttribute("onclick", `updateScores(${roundNumber}); getQuestions(${parseInt(roundNumber) + 1}); updateScoresHTML()`);
     }
     div.appendChild(document.createElement("br"));
     div.appendChild(document.createElement("br"));
@@ -565,5 +573,50 @@ function validateNumberOfSelections() {
             return true;
         }
 
+    }
+}
+
+function openControls(){
+    let audio = document.getElementById("musicplayer");
+    let div = document.getElementById("musicplayerH");
+    let close;
+
+    close = document.createElement("span");
+    close.className = "close";
+    close.style.float = "left";
+    close.innerHTML = "&times;"
+    close.setAttribute("onclick", "closeControl()");
+    
+    audio.setAttribute("controls", "");
+    div.appendChild(close)
+    
+    return
+}
+function closeControl(){
+    let audio = document.getElementById("musicplayer");
+    let close = document.getElementsByTagName("span");
+    close[0].remove();
+    audio.removeAttribute("controls");
+
+    return;
+}
+
+function updateScoresHTML(){
+    let mainDiv = document.getElementById("maindiv");
+    let p1 = document.getElementById("player1score");
+    let p2 = document.getElementById("player2score");
+
+    if(localStorage.getItem('player1score') && localStorage.getItem('player2score') && !p1 && !p2){
+        let p1 = document.createElement("p") , p2 = document.createElement("p");
+    
+        p1.id = "player1score";
+        p1.innerText = `${localStorage.getItem("player1Name")} score: ` +localStorage.getItem('player1score');
+        p2.id = "player2score";
+        p2.innerText = `${localStorage.getItem("player2Name")} score: ` + localStorage.getItem('player2score');
+        mainDiv.insertBefore(p1, mainDiv.children[0]);
+        mainDiv.insertBefore(p2, mainDiv.children[1]);
+    }else if(p1 && p2){
+        p1.innerText = `${localStorage.getItem("player1Name")} score: ` +localStorage.getItem('player1score');
+        p2.innerText = `${localStorage.getItem("player2Name")} score: ` + localStorage.getItem('player2score');
     }
 }
