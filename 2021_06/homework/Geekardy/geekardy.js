@@ -191,9 +191,16 @@ async function handleModal(modal, state) {
         let allQuestions = await getInfo(pickQuestionsEndPoint)
         let div = document.createElement("div");
         div.id = "listofquestions"
-        localStorage.setItem('allQuestions', allQuestions);
+        
         allQuestions = JSON.parse(allQuestions);
 
+        for(let i=0; i < allQuestions.results.length; i++){
+            allQuestions.results[i].question = deCode(allQuestions.results[i].question);
+            allQuestions.results[i].correct_answer = deCode(allQuestions.results[i].correct_answer);
+            for(let j =0; j < allQuestions.results[i].incorrect_answers.length; j++){
+                allQuestions.results[i].incorrect_answers[j] = deCode(allQuestions.results[i].incorrect_answers[j]);
+            }
+        }
         for (let i = 0; i < allQuestions.results.length; i++) {
             let checkbox = document.createElement("input");
             let label = document.createElement("label");
@@ -212,6 +219,7 @@ async function handleModal(modal, state) {
 
 
         }
+        localStorage.setItem('allQuestions', allQuestions);
         btn1 = document.createElement("button");
         btn1.setAttribute("onclick", "generatingChosenQuestions()");
         btn1.innerText = "Submit";
@@ -287,7 +295,15 @@ async function generateQuestions(chosenQuestions) {
     if (chosenQuestions == undefined) {
         for (let i = 0; i < endpoints.length; i++) {
             let questions = await getInfo(endpoints[i]);
-            localStorage.setItem("round" + (i + 1).toString(), questions);
+            questions = JSON.parse(questions);
+            for(let i=0; i < questions.results.length; i++){
+                questions.results[i].question = deCode(questions.results[i].question);
+                questions.results[i].correct_answer = deCode(questions.results[i].correct_answer);
+                for(let j =0; j < questions.results[i].incorrect_answers.length; j++){
+                    questions.results[i].incorrect_answers[j] = deCode(questions.results[i].incorrect_answers[j]);
+                }
+            }
+            localStorage.setItem("round" + (i + 1).toString(), JSON.stringify(questions));
         }
     } else if (chosenQuestions) {
         for (let i = 0; i < chosenQuestions.results.length; i++) {
@@ -365,13 +381,18 @@ function getQuestions(roundNumber) {
         }
 
         temp1.push(correct_answer1);
+
+        for(let j=0; j < questions.results[i].length; j++){
+            questions.results[i][j] = questions.results[i][j];
+        }
+
         allAnswers1 = temp1.concat(questions.results[i].incorrect_answers);
         allAnswers1.sort();
 
         for (let j = 0; j < allAnswers1.length; j++) {
             let radioButton = document.createElement("input");
             let label = document.createElement("label");
-
+            allAnswers1[j] = allAnswers1[j];
             radioButton.type = "radio";
             radioButton.name = `${localStorage.getItem('player1Name')}${i}`;
             radioButton.id = allAnswers1[j];
@@ -405,6 +426,11 @@ function getQuestions(roundNumber) {
         }
 
         temp2.push(correct_answer2);
+
+        for(let j=0; j < questions.results[i].length; j++){
+            questions.results[i][j] = questions.results[i][j];
+        }
+
         allAnswers2 = temp2.concat(questions.results[i].incorrect_answers);
         allAnswers2.sort();
 
@@ -619,4 +645,11 @@ function updateScoresHTML() {
         p1.innerText = `${localStorage.getItem("player1Name")} score: ` + localStorage.getItem('player1score');
         p2.innerText = `${localStorage.getItem("player2Name")} score: ` + localStorage.getItem('player2score');
     }
+}
+
+function deCode(html){
+    let decoder = document.createElement("textarea");
+
+    decoder.innerHTML = html;
+    return decoder.innerHTML;
 }
