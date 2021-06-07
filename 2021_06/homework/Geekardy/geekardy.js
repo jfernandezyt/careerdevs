@@ -647,6 +647,9 @@ function updateScoresHTML() {
     }
 }
 
+//function decodes any encoded text passed on to it
+//using the textarea element to pass possibly encoded text to it
+//which decodes it and pulling the result from that 
 function deCode(html){
     let decoder = document.createElement("textarea");
 
