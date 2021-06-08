@@ -1,0 +1,92 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>GoRest practice</title>
+    <meta name="description" content="careerdevs assignment">
+    <meta name="author" content="Joel Fernandez">
+
+    <link rel="stylesheet" href="./stylesheet.css">
+    <script src="script.js"></script>
+    <script src="key/key.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div>Response</div>
+    <div id="responsediv" class="requestdiv"></div>
+    <br>
+    <br>
+    <div>GET Request</div>
+    <div class="requestdiv">
+        <input id="getid" type="text" placeholder="Please enter User id to search">
+        <br>
+        <br>
+        <button onclick="getUser()">Get User</button>
+    </div>
+
+    <div>POST Request</div>
+    <div class="requestdiv">
+        <label for="namepost"></label>
+        <input id="namepost" type="text" placeholder="Please enter full name" onchange="validate(this)">
+        <br>
+        <br>
+        <label for="emailpost"></label>
+        <input id="emailpost" type="text" placeholder="Please enter the email" onchange="validate(this)">
+        <br>
+        <br>
+        <select name="genderpost" id="genderpost">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+        <br>
+        <br>
+        <button onclick="createUser()">Create User</button>
+    </div>
+
+
+    <div>PUT Request</div>
+    <div class="requestdiv">
+        <input id="putid" type="text" placeholder="Please enter User id to search" onchange="getUsersForPut()">
+        <br>
+        <br>
+        <label for="nameput"></label>
+        <input id="nameput" type="text" placeholder="Please enter full name" onchange="validate(this)">
+        <br>
+        <br>
+        <label for="emailput"></label>
+        <input id="emailput" type="text" placeholder="Please enter the email" onchange="validate(this)">
+        <br>
+        <br>
+        <select name="statusput" id="statusput">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+        </select>
+        <br>
+        <br>
+        <select name="genderput" id="genderput">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+        <br>
+        <br>
+        <button onclick="updateUser()">Update User</button>
+    </div>
+
+    <div>DELETE Request</div>
+    <div class="requestdiv">
+        <input id="delid" type="text" placeholder="Please enter User id to delete">
+        <br>
+        <br>
+        <button onclick="deleteUser()">Delete User</button>
+    </div>
+
+    <div>Response</div>
+    <div id="responsediv"></div>
+
+</body>
+
+</html>

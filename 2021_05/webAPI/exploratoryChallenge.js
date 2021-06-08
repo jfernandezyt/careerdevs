@@ -1,3 +1,4 @@
+
 async function myFunction() {
     let newsURL, nasaURL, newsAPI, nasaAPI, weatherAPI;
 

@@ -1,0 +1,12 @@
+.requestdiv{
+    background-color:grey;
+    float: left;
+    width: 20%;
+    height: 300px;
+    margin-right: 100%;
+}
+
+#responsediv{
+    background-color:mintcream;
+    
+}
