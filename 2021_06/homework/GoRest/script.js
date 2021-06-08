@@ -1,4 +1,4 @@
-//const key = returnKey();
+const key = returnKey();
 
 function validate(element) {
 
