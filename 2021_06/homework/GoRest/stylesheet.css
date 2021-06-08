@@ -10,3 +10,11 @@
     background-color:mintcream;
     
 }
+
+.error{
+    border: 1px solid red;
+}
+
+input[type=text]{
+    width:250px;
+}

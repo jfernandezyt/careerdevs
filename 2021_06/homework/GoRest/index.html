@@ -22,7 +22,7 @@
     <br>
     <div>GET Request</div>
     <div class="requestdiv">
-        <input id="getid" type="text" placeholder="Please enter User id to search">
+        <input id="getid" type="text" placeholder="Please enter User id to search" onchange="validate(this)">
         <br>
         <br>
         <button onclick="getUser()">Get User</button>
@@ -50,7 +50,7 @@
 
     <div>PUT Request</div>
     <div class="requestdiv">
-        <input id="putid" type="text" placeholder="Please enter User id to search" onchange="getUsersForPut()">
+        <input id="putid" type="text" placeholder="Please enter User id to search" onchange="validate(this); getUsersForPut()">
         <br>
         <br>
         <label for="nameput"></label>
@@ -78,7 +78,7 @@
 
     <div>DELETE Request</div>
     <div class="requestdiv">
-        <input id="delid" type="text" placeholder="Please enter User id to delete">
+        <input id="delid" type="text" placeholder="Please enter User id to delete" onchange="validate(this)">
         <br>
         <br>
         <button onclick="deleteUser()">Delete User</button>

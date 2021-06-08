@@ -1,6 +1,14 @@
-const key = returnKey();
+//const key = returnKey();
+
 function validate(element) {
 
+    if(element.value == "" || element.value.trim() == ""){
+        element.className = "error"
+        return false;
+    }else{
+        element.className = "";
+        return true;
+    }
 }
 
 function getUser() {
