@@ -4,22 +4,46 @@ Convert a string to spinal case. Spinal case is all-lowercase-words-joined-by-da
 */
 
 function spinalCase(str) {
-    let capChars = new RegExp(/[A-Z]/g);
-    let hasSpaces = new RegExp("' '+", "g");
-    let capitilized;
-    if(!hasSpaces.exec(str)){
-        while ((capitilized = capChars.exec(str)) !== null) {
-            str = str.replace(capitilized[0], '-' + capitilized[0])
-          }
-    }else if(!hasSpaces.exec(str)){
-        str = str.replaceAll(hasSpaces, '-')
-    }
+    let hasSpaces = new RegExp(/[' ', _ , -]+/, 'g');
+    let hasCapital = new RegExp(/[A-Z]+/, 'g');
+    let arrayIndex = [];
+    let temp = "";
+    let notCompleted = true;
+    let counter = 0;
+    str = str.replace(hasSpaces, '-')
     console.log(str)
+
+    while (hasCapital.exec(str) !== null) {
+        arrayIndex.push(hasCapital.lastIndex)
+    }
+
+    while (notCompleted === true) {
+        if (counter === arrayIndex.length) {
+            notCompleted = false;
+        } else {
+            console.log(str[arrayIndex[counter]-1], str[arrayIndex[counter]-2 ])
+            if (str[arrayIndex[counter]-2 ] !== undefined && str[arrayIndex[counter]-2 ] !== '-') {
+                if (arrayIndex[counter] != 1) {
+                    if (counter + 1 === arrayIndex.length) {
+                        notCompleted = false;
+                        temp += str.slice(arrayIndex[counter] - 1);
+                    } else {
+                        temp += str.slice(arrayIndex[counter] - 1, arrayIndex[counter + 1] - 1) + '-';
+                    }
+
+                } else {
+                    temp = str.substr(arrayIndex[counter] - 1, (arrayIndex[counter + 1] - 1)) + '-'
+                }
+            }
+            counter++
+        }
+    }
+    str = str.toLowerCase();
     return str;
 }
 
-spinalCase('thisIsSpinalTap');
-console.log();
+
+console.log(spinalCase('AllThe-small Things'));
 
 
 
