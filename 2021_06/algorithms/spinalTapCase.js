@@ -3,55 +3,31 @@
 Convert a string to spinal case. Spinal case is all-lowercase-words-joined-by-dashes.
 */
 
+hasCapital = new RegExp(/[A-Z]+/, 'g');
+wantedResult = new RegExp(/[a-z,-]/, 'g');
+
 function spinalCase(str) {
-    let hasSpaces = new RegExp(/[' ', _ , -]+/, 'g');
-    let hasCapital = new RegExp(/[A-Z]+/, 'g');
-    let arrayIndex = [];
-    let temp = "";
-    let notCompleted = true;
-    let counter = 0;
-    str = str.replace(hasSpaces, '-')
-    console.log(str)
+    let hasSpaces, wantedResult, test, total = 0;
 
-    while (hasCapital.exec(str) !== null) {
-        arrayIndex.push(hasCapital.lastIndex)
+    hasSpaces = new RegExp(/[' ', _ , -]+/, 'g');
+    wantedResult = new RegExp(/[a-z,-]/, 'g');
+
+    str = str.replace(hasSpaces, '-');
+    test = str.toLowerCase();
+
+    while (wantedResult.exec(test) !== null) {
+        total++;
     }
 
-    while (notCompleted === true) {
-        if (counter === arrayIndex.length) {
-            notCompleted = false;
-        } else {
-            console.log(str[arrayIndex[counter]-1], str[arrayIndex[counter]-2 ])
-            if (str[arrayIndex[counter]-2 ] !== undefined && str[arrayIndex[counter]-2 ] !== '-') {
-                if (arrayIndex[counter] != 1) {
-                    if (counter + 1 === arrayIndex.length) {
-                        notCompleted = false;
-                        temp += str.slice(arrayIndex[counter] - 1);
-                    } else {
-                        temp += str.slice(arrayIndex[counter] - 1, arrayIndex[counter + 1] - 1) + '-';
-                    }
-
-                } else {
-                    temp = str.substr(arrayIndex[counter] - 1, (arrayIndex[counter + 1] - 1)) + '-'
-                }
-            }
-            counter++
-        }
+    if(total === str.length){
+        return str.toLowerCase();
     }
-    str = str.toLowerCase();
-    return str;
 }
-
-
 console.log(spinalCase('AllThe-small Things'));
-
-
-
-
-
-
-
-
-
-//str = str.replace(regex, '-');
-    //str =  str.toLowerCase();
+/*
+This Is Spinal Tap
+thisIsSpinalTap
+The_Andy_Griffith_Show
+Teletubbies say Eh-oh
+AllThe-small Things
+*/

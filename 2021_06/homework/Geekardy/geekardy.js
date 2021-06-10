@@ -21,6 +21,7 @@ function continueAGame() {
         return;
     }
     getQuestions(localStorage.getItem("lastplayedround"));
+    updateScoresHTML();
     return;
 }
 
