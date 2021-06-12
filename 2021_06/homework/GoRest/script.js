@@ -2,10 +2,10 @@ const key = returnKey();
 
 function validate(element) {
 
-    if(element.value == "" || element.value.trim() == ""){
+    if (element.value == "" || element.value.trim() == "") {
         element.className = "error"
         return false;
-    }else{
+    } else {
         element.className = "";
         return true;
     }
@@ -105,10 +105,12 @@ function handleRequest(httpRequest, params) {
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.setRequestHeader('Authorization', `Bearer ${key}`)
 
-
+        console.log(xhr)
         xhr.onload = function (parameterEvent) {
+            console.log(this.responseText)
             let temp = JSON.parse(this.responseText)
             //console.log(temp)
+            console.log(temp)
             handleResponse(temp, httpRequest);
 
 
@@ -128,10 +130,11 @@ function handleResponse(response, handledMethod) {
     let responseDiv;
 
     responseDiv = document.getElementById("responsediv");
-    console.log(responseDiv, 11111111111111111111);
-    if (responseDiv && handledMethod === "GET") {
-        responseDiv.innerText = `The user retrieved info is
-
+    console.log(response.code, 11111111111111111111);
+    if (response.code == 200 || response.code == 201 || response.code == 202 || response.code == 204) {
+        if (responseDiv && handledMethod === "GET") {
+            responseDiv.innerText = `The user retrieved info is
+    
 id: ${response.data.id} 
 
 name: ${response.data.name}
@@ -146,9 +149,9 @@ created at: ${response.data.created_at}
 
 updated at: ${response.data.updated_at}`
 
-    } else if (responseDiv && handledMethod === "POST") {
-        responseDiv.innerText = `The created user info is
-
+        } else if (responseDiv && handledMethod === "POST") {
+            responseDiv.innerText = `The created user info is
+    
 id: ${response.data.id} 
 
 name: ${response.data.name}
@@ -162,9 +165,9 @@ status: ${response.data.status}
 created at: ${response.data.created_at}
 
 updated at: ${response.data.updated_at}`
-    } else if (responseDiv && handledMethod === "PUT") {
-        responseDiv.innerText = `The updated new user info is
-
+        } else if (responseDiv && handledMethod === "PUT") {
+            responseDiv.innerText = `The updated new user info is
+    
 id: ${response.data.id} 
 
 name: ${response.data.name}
@@ -178,8 +181,12 @@ status: ${response.data.status}
 created at: ${response.data.created_at}
 
 updated at: ${response.data.updated_at}`
-    } else if (responseDiv && handledMethod === "DELETE") {
-        responseDiv.innerText = `The user was successfully deleted`
+        } else if (responseDiv && handledMethod === "DELETE") {
+            responseDiv.innerText = `The user was successfully deleted`
+        }
+    }else{
+        responseDiv.innerText = "There was an error with the request or response"
     }
+
     return;
 }

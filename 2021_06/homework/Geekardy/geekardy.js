@@ -15,12 +15,13 @@ function startNewGame() {
 //when button is clicked we check to see if there is a valid session in storage
 //if there is then we get the last round played and repopulate the questions 
 function continueAGame() {
+    let gameObject = JSON.parse(localStorage.getItem("gameObjectLS"));
     if (isValidSession() === false) {
         alert("Unfortunately, the previous game is not a valid session, but you can start a new game")
         startNewGame();
         return;
     }
-    getQuestions(localStorage.getItem("lastplayedround"));
+    getQuestions(gameObject.lastPlayedRound);
     updateScoresHTML();
     return;
 }
@@ -30,12 +31,14 @@ function continueAGame() {
 //the last round played item is set
 function isValidSession() {
     let arr = []
-    for (let j in localStorage) {
-        if (j == 'player1Name' || j == "player1score" || j == "player2score" || j == 'player2Name' || j == "lastplayedround") {
-            arr.push(j);
+    let gameObject = JSON.parse(localStorage.getItem("gameObjectLS"));
+    for (let properties in gameObject) {
+        if (properties == 'player1' || properties == "player2" || properties == "lastPlayedRound" || properties == "questions") {
+                arr.push(properties);         
+            
         }
     }
-    if (arr.length === 5) {
+    if (arr.length === 4) {
         return true;
     }
     return false;
@@ -46,13 +49,13 @@ function isValidSession() {
 function clearLocal() {
     let p1 = document.getElementById("player1score");
     let p2 = document.getElementById("player2score");
-    if (p1 || p2) {
+    let ann = document.getElementById("announcement");
+    if (p1 || p2 ||ann) {
         p1.remove();
         p2.remove();
+        ann.remove();
     }
-    for (let j in localStorage) {
-        localStorage.removeItem(j);
-    }
+    localStorage.clear();
     return;
 }
 
@@ -68,15 +71,17 @@ function populateNameCollection() {
 // this function saves the names in local storage
 // then lets generate questions with generateQuestions()
 function collectNames() {
-    let player1Name, player2Name, pickQuestions, check;
+    let player1Name, player2Name, pickQuestions, gameObject = {};
 
     player1Name = document.getElementById("player1Name");
     player2Name = document.getElementById("player2Name");
     pickQuestions = document.getElementsByName("choosequestions");
+    gameObject.player1 = {};
+    gameObject.player2 = {};
+    gameObject.player1.name = player1Name.value;
+    gameObject.player2.name = player2Name.value;
 
-    localStorage.setItem("player1Name", player1Name.value);
-    localStorage.setItem("player2Name", player2Name.value);
-    check = getChecked(pickQuestions);
+    localStorage.setItem("gameObjectLS", JSON.stringify(gameObject));
     if (getChecked(pickQuestions) === "Y") {
         closeModal();
         handleModal(createModal(), "pickQuestions")
@@ -117,10 +122,18 @@ function createModal() {
 //later on
 async function handleModal(modal, state) {
 
-    let input1, input2, label1, label2, btn1, radioButton1, radioButton2, label3, label4, label5;
+    let input1, input2, label1, label2, btn1, radioButton1, radioButton2, label3, label4, label5, gameObject, player1, player2;
 
-    let player1 = (localStorage.getItem("player1Name")) ? localStorage.getItem("player1Name") : null;
-    let player2 = (localStorage.getItem("player2Name")) ? localStorage.getItem("player2Name") : null;
+    gameObject = JSON.parse(localStorage.getItem("gameObjectLS"));
+    console.log(gameObject);
+    if (gameObject) {
+        player1 = gameObject.player1.name
+        player2 = gameObject.player2.name
+    } else {
+        player1 = null;
+        player2 = null;
+    }
+
     if (!player1 && !player2 && state === undefined) {
         input1 = document.createElement("input");
         input1.type = "text";
@@ -192,13 +205,13 @@ async function handleModal(modal, state) {
         let allQuestions = await getInfo(pickQuestionsEndPoint)
         let div = document.createElement("div");
         div.id = "listofquestions"
-        
+
         allQuestions = JSON.parse(allQuestions);
 
-        for(let i=0; i < allQuestions.results.length; i++){
+        for (let i = 0; i < allQuestions.results.length; i++) {
             allQuestions.results[i].question = deCode(allQuestions.results[i].question);
             allQuestions.results[i].correct_answer = deCode(allQuestions.results[i].correct_answer);
-            for(let j =0; j < allQuestions.results[i].incorrect_answers.length; j++){
+            for (let j = 0; j < allQuestions.results[i].incorrect_answers.length; j++) {
                 allQuestions.results[i].incorrect_answers[j] = deCode(allQuestions.results[i].incorrect_answers[j]);
             }
         }
@@ -220,7 +233,8 @@ async function handleModal(modal, state) {
 
 
         }
-        localStorage.setItem('allQuestions', allQuestions);
+        gameObject.allQuestions = allQuestions;
+        localStorage.setItem('gameObjectLS', JSON.stringify(gameObject));
         btn1 = document.createElement("button");
         btn1.setAttribute("onclick", "generatingChosenQuestions()");
         btn1.innerText = "Submit";
@@ -246,10 +260,11 @@ async function handleModal(modal, state) {
 // }
 //Structure was needed in order to simulate an api response
 function generatingChosenQuestions() {
+    let counter = 0;
     if (validateNumberOfSelections() === true) {
-        let chosenquestion, allQuestions, obj = { results: [] };
-
-        allQuestions = JSON.parse(localStorage.getItem('allQuestions'));
+        let chosenquestion, allQuestions, obj = { results: [] }, gameObject;
+        gameObject = JSON.parse(localStorage.getItem('gameObjectLS'))
+        allQuestions = gameObject.allQuestions;        
         chosenquestion = document.getElementsByTagName("input");
 
         for (let i = 0; i < 3; i++) {
@@ -259,12 +274,15 @@ function generatingChosenQuestions() {
         }
         for (let i = 0; i < chosenquestion.length; i++) {
             if (chosenquestion[i].checked) {
-                if (i < 6) {
+                if (counter < 6) {
                     obj.results[0].results.push(allQuestions.results[i]);
-                } else if (i < 12) {
+                    counter++;
+                } else if (counter < 12) {
                     obj.results[1].results.push(allQuestions.results[i]);
+                    counter++;
                 } else {
                     obj.results[2].results.push(allQuestions.results[i]);
+                    counter++;
                 }
             }
         }
@@ -293,24 +311,31 @@ function closeModal() {
 //else if: loop through our created data structure in generatingChosenQuestions()
 //loop through it as you would the api responses
 async function generateQuestions(chosenQuestions) {
+    let gameObject = JSON.parse(localStorage.getItem("gameObjectLS"));
+    gameObject.questions = [];
     if (chosenQuestions == undefined) {
         for (let i = 0; i < endpoints.length; i++) {
+
             let questions = await getInfo(endpoints[i]);
             questions = JSON.parse(questions);
-            for(let i=0; i < questions.results.length; i++){
+            for (let i = 0; i < questions.results.length; i++) {
+
                 questions.results[i].question = deCode(questions.results[i].question);
                 questions.results[i].correct_answer = deCode(questions.results[i].correct_answer);
-                for(let j =0; j < questions.results[i].incorrect_answers.length; j++){
+                for (let j = 0; j < questions.results[i].incorrect_answers.length; j++) {
                     questions.results[i].incorrect_answers[j] = deCode(questions.results[i].incorrect_answers[j]);
                 }
             }
-            localStorage.setItem("round" + (i + 1).toString(), JSON.stringify(questions));
+            console.log(questions)
+            gameObject.questions.push(questions);
         }
+        localStorage.setItem("gameObjectLS", JSON.stringify(gameObject));
     } else if (chosenQuestions) {
         for (let i = 0; i < chosenQuestions.results.length; i++) {
-            let object = chosenQuestions.results[i]
-            localStorage.setItem("round" + (i + 1).toString(), JSON.stringify(object));
+            console.log(chosenQuestions.results[i]);
+            gameObject.questions.push(chosenQuestions.results[i]);
         }
+        localStorage.setItem("gameObjectLS", JSON.stringify(gameObject));
     }
 
 
@@ -341,10 +366,11 @@ async function getInfo(endpoint) {
 //Retrieving the questions that i have for the round
 //and displaying to the users
 function getQuestions(roundNumber) {
-    let round = "round", questions, middle, div, player1Header, player2Header, btn, player1Correct = [], player2Correct = [], correct_answer1, correct_answer2, temp1 = [], temp2 = [], allAnswers1 = [], allAnswers2 = [], previousRound, player1 = {}, player2 = {}, modal, counter;
+    let gameObject, questions, middle, div, player1Header, player2Header, btn, player1Correct = [], player2Correct = [], correct_answer1, correct_answer2, temp1 = [], temp2 = [], allAnswers1 = [], allAnswers2 = [], previousRound, player1 = {}, player2 = {}, modal, counter;
     modal = document.getElementById("myModal");
     previousRound = document.getElementById(`round${roundNumber - 1}`);
     counter = 1;
+    gameObject = JSON.parse(localStorage.getItem("gameObjectLS"));
 
     if (modal) {
         closeModal();
@@ -356,14 +382,13 @@ function getQuestions(roundNumber) {
 
     div = document.createElement("div");
     btn = document.createElement("button");
-    round += roundNumber;
-    div.id = round;
-    questions = JSON.parse(localStorage.getItem(round));
+    div.id = "round" + roundNumber;
+    questions = gameObject.questions[roundNumber - 1];
     middle = (questions.results.length / 2);
 
     //Player1 Questions
     player1Header = document.createElement("h2");
-    player1Header.innerText = `Player "${localStorage.getItem('player1Name')}" questions (Round ${roundNumber}):`;
+    player1Header.innerText = `Player "${gameObject.player1.name}" questions (Round ${roundNumber}):`;
     div.appendChild(player1Header);
     div.appendChild(document.createElement("br"));
 
@@ -383,7 +408,8 @@ function getQuestions(roundNumber) {
 
         temp1.push(correct_answer1);
 
-        for(let j=0; j < questions.results[i].length; j++){
+        for (let j = 0; j < questions.results[i].length; j++) {
+            console.log(questions, 'questionable for loop doing what ? ');
             questions.results[i][j] = questions.results[i][j];
         }
 
@@ -395,7 +421,7 @@ function getQuestions(roundNumber) {
             let label = document.createElement("label");
             allAnswers1[j] = allAnswers1[j];
             radioButton.type = "radio";
-            radioButton.name = `${localStorage.getItem('player1Name')}${i}`;
+            radioButton.name = `${gameObject.player1.name}${i}`;
             radioButton.id = allAnswers1[j];
             label.innerText = allAnswers1[j];
             label.htmlFor = allAnswers1[j];
@@ -408,7 +434,7 @@ function getQuestions(roundNumber) {
 
     //Player2 Questions
     player2Header = document.createElement("h2");
-    player2Header.innerText = `Player "${localStorage.getItem('player2Name')}" questions (Round ${roundNumber}):`;
+    player2Header.innerText = `Player "${gameObject.player2.name}" questions (Round ${roundNumber}):`;
     div.appendChild(player2Header);
     div.appendChild(document.createElement("br"));
 
@@ -428,7 +454,7 @@ function getQuestions(roundNumber) {
 
         temp2.push(correct_answer2);
 
-        for(let j=0; j < questions.results[i].length; j++){
+        for (let j = 0; j < questions.results[i].length; j++) {
             questions.results[i][j] = questions.results[i][j];
         }
 
@@ -440,7 +466,7 @@ function getQuestions(roundNumber) {
             let label = document.createElement("label");
 
             radioButton.type = "radio";
-            radioButton.name = `${localStorage.getItem('player2Name')}${i}`;
+            radioButton.name = `${gameObject.player2.name}${i}`;
             radioButton.id = allAnswers2[j];
             label.innerText = allAnswers2[j];
             label.htmlFor = allAnswers2[j];
@@ -452,10 +478,10 @@ function getQuestions(roundNumber) {
         counter++;
     }
 
-    player1.correct_answers = player1Correct;
-    player2.correct_answers = player2Correct;
-    localStorage.setItem(`player1round${roundNumber}correctanswers`, JSON.stringify(player1));
-    localStorage.setItem(`player2round${roundNumber}correctanswers`, JSON.stringify(player2));
+
+    gameObject.player1.correct_answers = player1Correct;
+    gameObject.player2.correct_answers = player2Correct;
+    localStorage.setItem(`gameObjectLS`, JSON.stringify(gameObject));
 
 
 
@@ -476,61 +502,63 @@ function getQuestions(roundNumber) {
 //the correct answers to the given questions in that round
 //save score in localstorage
 function updateScores(roundNumber) {
-    let player1score, player2score, counter = 0;
+    let player1score, player2score, counter = 0, gameObject, p1CorrectAnswers = [], p2CorrectAnswers = [];
+    gameObject = JSON.parse(localStorage.getItem('gameObjectLS'));
+    player1score = (gameObject.player1.score > -1) ? gameObject.player1.score : null;
+    player2score = (gameObject.player2.score > -1) ? gameObject.player2.score : null;
 
-    player1score = (localStorage.getItem('player1score')) ? parseInt(localStorage.getItem('player1score')) : null;
-    player2score = (localStorage.getItem('player2score')) ? parseInt(localStorage.getItem('player2score')) : null;
-
-    let p1CorrectAnswers = JSON.parse(localStorage.getItem(`player1round${roundNumber}correctanswers`));
-    let p2CorrectAnswers = JSON.parse(localStorage.getItem(`player2round${roundNumber}correctanswers`));
+    console.log(gameObject.player1.correct_answers, gameObject.player2.correct_answers, 1)
+    p1CorrectAnswers = gameObject.player1.correct_answers;
+    p2CorrectAnswers = gameObject.player2.correct_answers;
 
     if (!player1score && !player2score) {
         player1score = 0
         player2score = 0;
 
 
-        for (let i = 0; i < p1CorrectAnswers.correct_answers.length; i++) {
-            let currentAnswer = document.getElementsByName(`${localStorage.getItem("player1Name")}${i}`);
+        for (let i = 0; i < gameObject.player1.correct_answers.length; i++) {
+            let currentAnswer = document.getElementsByName(`${gameObject.player1.name}${i}`);
             let answer = getChecked(currentAnswer);
 
-            if (answer == p1CorrectAnswers.correct_answers[i]) {
+            if (answer == gameObject.player1.correct_answers[i]) {
                 player1score += 1;
             }
         }
 
-        for (let i = p1CorrectAnswers.correct_answers.length; i < (p2CorrectAnswers.correct_answers.length + p1CorrectAnswers.correct_answers.length); i++) {
-            let currentAnswer = document.getElementsByName(`${localStorage.getItem("player2Name")}${i}`);
+        for (let i = gameObject.player1.correct_answers.length; i < (gameObject.player2.correct_answers.length * 2); i++) {
+            let currentAnswer = document.getElementsByName(`${gameObject.player2.name}${i}`);
             let answer = getChecked(currentAnswer);
 
-            if (answer == p2CorrectAnswers.correct_answers[counter]) {
+            if (answer == gameObject.player2.correct_answers.length[counter]) {
                 player2score += 1;
             }
             counter++;
         }
 
     } else {
-        for (let i = 0; i < p1CorrectAnswers.correct_answers.length; i++) {
-            let currentAnswer = document.getElementsByName(`${localStorage.getItem("player1Name")}${i}`);
+        for (let i = 0; i <  gameObject.player1.correct_answers.length; i++) {
+            let currentAnswer = document.getElementsByName(`${gameObject.player1.name}${i}`);
             let answer = getChecked(currentAnswer);
 
-            if (answer === p1CorrectAnswers.correct_answers[i]) {
+            if (answer ===  gameObject.player1.correct_answers[i]) {
                 player1score += 1;
             }
         }
 
-        for (let i = p1CorrectAnswers.correct_answers.length; i < (p2CorrectAnswers.correct_answers.length + p1CorrectAnswers.correct_answers.length); i++) {
-            let currentAnswer = document.getElementsByName(`${localStorage.getItem("player2Name")}${i}`);
+        for (let i =  gameObject.player1.correct_answers.length; i <  (gameObject.player2.correct_answers.length * 2); i++) {
+            let currentAnswer = document.getElementsByName(`${gameObject.player2.name}${i}`);
             let answer = getChecked(currentAnswer);
 
-            if (answer == p2CorrectAnswers.correct_answers[counter]) {
+            if (answer == gameObject.player2.correct_answers[counter]) {
                 player2score += 1;
             }
             counter++;
         }
     }
-    localStorage.setItem("lastplayedround", roundNumber + 1);
-    localStorage.setItem('player1score', player1score);
-    localStorage.setItem('player2score', player2score);
+    gameObject.lastPlayedRound = roundNumber + 1;
+    gameObject.player1.score = player1score;
+    gameObject.player2.score = player2score;
+    localStorage.setItem("gameObjectLS", JSON.stringify(gameObject));
 
     if (roundNumber === 3) {
         announceWinner(player1score, player2score);
@@ -542,18 +570,20 @@ function updateScores(roundNumber) {
 
 //Announce the winner, check the scores and announce accordingly
 function announceWinner(score1, score2) {
+    let gameObject = JSON.parse(localStorage.getItem("gameObjectLS"));
     let round = document.getElementById(`round3`);
     let announcement;
 
     announcement = document.createElement("h1");
+    announcement.id = "announcement";
     round.remove();
 
     if (score1 > score2) {
-        announcement.innerText = `${localStorage.getItem("player1Name")} is the winner, congratulations!!! Great game ${localStorage.getItem("player2Name")}`;
+        announcement.innerText = `${gameObject.player1.name} is the winner, congratulations!!! Great game ${gameObject.player2.name}`;
     } else if (score2 > score1) {
-        announcement.innerText = `${localStorage.getItem("player2Name")} is the winner, congratulations!!! Great game ${localStorage.getItem("player1Name")}`;
+        announcement.innerText = `${gameObject.player2.name} is the winner, congratulations!!! Great game ${gameObject.player1.name}`;
     } else {
-        announcement.innerText = ` Great game: ${localStorage.getItem("player1Name")} and ${localStorage.getItem("player2Name")}. You tied this game, play again ?`;
+        announcement.innerText = ` Great game: ${gameObject.player1.name} and ${gameObject.player2.name}. You tied this game, play again ?`;
     }
     outputHTML(announcement);
     return
@@ -629,29 +659,30 @@ function closeControl() {
 }
 
 function updateScoresHTML() {
+    let gameObject = JSON.parse(localStorage.getItem("gameObjectLS"));
     let mainDiv = document.getElementById("maindiv");
     let p1 = document.getElementById("player1score");
     let p2 = document.getElementById("player2score");
 
-    if (localStorage.getItem('player1score') && localStorage.getItem('player2score') && !p1 && !p2) {
+    if (gameObject && !p1 && !p2) {
         let p1 = document.createElement("p"), p2 = document.createElement("p");
 
         p1.id = "player1score";
-        p1.innerText = `${localStorage.getItem("player1Name")} score: ` + localStorage.getItem('player1score');
+        p1.innerText = `${gameObject.player1.name} score: ` + gameObject.player1.score;
         p2.id = "player2score";
-        p2.innerText = `${localStorage.getItem("player2Name")} score: ` + localStorage.getItem('player2score');
+        p2.innerText = `${gameObject.player2.name} score: ` + gameObject.player2.score;
         mainDiv.insertBefore(p1, mainDiv.children[0]);
         mainDiv.insertBefore(p2, mainDiv.children[1]);
     } else if (p1 && p2) {
-        p1.innerText = `${localStorage.getItem("player1Name")} score: ` + localStorage.getItem('player1score');
-        p2.innerText = `${localStorage.getItem("player2Name")} score: ` + localStorage.getItem('player2score');
+        p1.innerText = `${gameObject.player1.name} score: ` + gameObject.player1.score;
+        p2.innerText = `${gameObject.player2.name} score: ` + gameObject.player2.score;
     }
 }
 
 //function decodes any encoded text passed on to it
 //using the textarea element to pass possibly encoded text to it
 //which decodes it and pulling the result from that 
-function deCode(html){
+function deCode(html) {
     let decoder = document.createElement("textarea");
 
     decoder.innerHTML = html;
