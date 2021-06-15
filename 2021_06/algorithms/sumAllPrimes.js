@@ -5,11 +5,24 @@ Rewrite sumPrimes so it returns the sum of all prime numbers that are less than 
  */
 
 function sumPrimes(num) {
-    let sum = 0, not
-    for (let i = 0; i <= num; i++) {
-        
+    let sum = 0;
+
+    function helper(number) {
+        for (let i = 2; i <= Math.sqrt(number); i++) {
+            console.log(number, i, "111111111111111")
+            if (number % i == 0) {
+                console.log(number, i, "2222222222222")
+                return false;
+            }
+        }
+        return true;
+    }
+
+    for (let i = 2; i <= num; i++) {
+        if (helper(i)) {
+            sum += i;
+        }
     }
     return sum;
 }
-
 console.log(sumPrimes(977));
